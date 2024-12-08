@@ -3,6 +3,7 @@ import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
 import { Link } from "react-router-dom";
 import UserDetailsContext from "../contexts/UserDetails";
+import MyPosts from "../components/MyPosts";
 const Profile = () => {
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
   useEffect(() => {
@@ -49,6 +50,9 @@ const Profile = () => {
       </div>
       <div className="mt-[2px] ml-[15px] p-1">
         <p className="text-black font-bold text-[20px]">My Posts</p>
+      </div>
+      <div className="w-full">
+        <MyPosts />
       </div>
     </>
   );
