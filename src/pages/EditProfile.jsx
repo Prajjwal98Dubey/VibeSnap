@@ -1,25 +1,21 @@
 import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
 import EDIT_ICON from "../assets/icons-images/edit_icon.png";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "../firebase/firebase";
+import { db, storage } from "../firebase/firebase.js";
 import {
   addDoc,
   collection,
   doc,
   getDocs,
   query,
-  updateDoc,
+  setDoc,
   where,
 } from "firebase/firestore";
 import UserDetailsContext from "../contexts/UserDetails";
 
 const EditProfile = () => {
-  const [userName, setUserName] = useState("");
-  const [bio, setBio] = useState("");
-  const [userPhoto, setUserPhoto] = useState("");
-  const [backgroundPhoto, setBackgroundPhoto] = useState("");
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
   useEffect(() => {
     if (Object.keys(userInfo).length === 0)
@@ -32,7 +28,7 @@ const EditProfile = () => {
     uploadBytes(userPhotoRef, e.target.files[0]).then(() => {
       getDownloadURL(userPhotoRef)
         .then((url) => {
-          setUserPhoto(url);
+          setUserInfo({ ...userInfo, user_photo: url });
           alert("user photo upload");
         })
         .catch((err) => {
@@ -47,7 +43,7 @@ const EditProfile = () => {
     uploadBytes(bgImageRef, e.target.files[0]).then(() => {
       getDownloadURL(bgImageRef)
         .then((url) => {
-          setBackgroundPhoto(url);
+          setUserInfo({ ...userInfo, user_background: url });
           alert("background upload");
         })
         .catch((err) => {
@@ -57,24 +53,27 @@ const EditProfile = () => {
   };
 
   const handleSaveUserDetails = async () => {
-    if (!userName) return alert("name is mandatory field.");
+    // if (!userName) return alert("name is mandatory field.");
     const q = query(
-      collection(db, "users_details"),
-      where("user_email", "==", userInfo.user_email)
+      collection(db, "users-details"),
+      where(
+        "user_email",
+        "==",
+        JSON.parse(localStorage.getItem("sm-auth")).user_email
+      )
     );
-
     const querySnapshot = await getDocs(q);
-
     if (!querySnapshot.empty) {
       querySnapshot.forEach(async (docSnap) => {
-        const docRef = doc(db, "users_details", docSnap.id);
-        await updateDoc(docRef, {
-          user_name: userInfo,
+        const docRef = doc(db, "users-details", docSnap.id);
+        const updatedDoc = {
+          user_name: userInfo.user_name,
           user_bio: userInfo.user_bio,
           user_email: userInfo.user_email,
           user_photo: userInfo.user_photo,
           user_background: userInfo.user_background,
-        });
+        };
+        await setDoc(docRef, updatedDoc);
         setUserInfo({
           user_name: userInfo.user_name,
           user_bio: userInfo.user_bio,
@@ -82,37 +81,70 @@ const EditProfile = () => {
           user_photo: userInfo.user_photo,
           user_background: userInfo.user_background,
         });
+        if (localStorage.getItem("sm-auth")) {
+          localStorage.removeItem("sm-auth");
+          localStorage.setItem(
+            "sm-auth",
+            JSON.stringify({
+              user_name: userInfo.user_name,
+              user_bio: userInfo.user_bio,
+              user_email: userInfo.user_email,
+              user_photo: userInfo.user_photo,
+              user_background: userInfo.user_background,
+            })
+          );
+        }
 
         console.log(`Document with ID ${docSnap.id} successfully updated!`);
       });
     } else {
       console.log("No matching documents found.");
-    }
-    try {
-      const docRef = await addDoc(collection(db, "users-details"), {
-        user_name: userName,
-        user_bio: bio ? bio : "",
-        user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
-        user_photo: userPhoto ? userPhoto : "",
-        user_background: backgroundPhoto ? backgroundPhoto : "",
-      });
+      try {
+        const docRef = await addDoc(collection(db, "users-details"), {
+          user_name: userInfo.user_name,
+          user_bio: userInfo.user_bio ? userInfo.user_bio : "",
+          user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
+          user_photo: userInfo.user_photo ? userInfo.user_photo : "",
+          user_background: userInfo.user_background
+            ? userInfo.user_background
+            : "",
+        });
 
-      setUserInfo({
-        user_name: userName,
-        user_bio: bio ? bio : "",
-        user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
-        user_photo: userPhoto ? userPhoto : "",
-        user_background: backgroundPhoto ? backgroundPhoto : "",
-      });
+        setUserInfo({
+          user_name: userInfo.user_name,
+          user_bio: userInfo.user_bio,
+          user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
+          user_photo: userInfo.user_photo ? userInfo.user_photo : "",
+          user_background: userInfo.user_background
+            ? userInfo.user_background
+            : "",
+        });
+        if (localStorage.getItem("sm-auth")) {
+          localStorage.removeItem("sm-auth");
+          localStorage.setItem(
+            "sm-auth",
+            JSON.stringify({
+              user_name: userInfo.user_name,
+              user_bio: userInfo.user_bio,
+              user_email: userInfo.user_email,
+              user_photo: userInfo.user_photo ? userInfo.user_photo : "",
+              user_background: userInfo.user_background
+                ? userInfo.user_background
+                : "",
+            })
+          );
+        }
 
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
     }
   };
 
   return (
     <>
+      {/* {console.log(userInfo)} */}
       <div className="w-full relative">
         <div className="absolute top-[20px] left-[20px]">
           <p className="text-[20px] font-semibold font-sans text-[#ffffff] ">
@@ -158,10 +190,15 @@ const EditProfile = () => {
         </div>
         <input
           type="text"
-          placeholder="Virat Kohli"
+          placeholder="Enter Your Full Name"
           className="w-[350px] h-[50px] border border-transparent border-b-gray-400"
-          value={userInfo.user_name ? userInfo.user_name : userName}
-          onChange={(e) => setUserName(e.target.value)}
+          value={userInfo.user_name ? userInfo.user_name : ""}
+          onChange={(e) => {
+            setUserInfo({
+              ...userInfo,
+              user_name: e.target.value,
+            });
+          }}
         />
       </div>
       <div className="mt-[20px] ml-[20px]">
@@ -170,10 +207,15 @@ const EditProfile = () => {
         </div>
         <input
           type="text"
-          placeholder="Hi, I am Goat !!!"
+          placeholder="Enter Your Bio..."
           className="p-1 w-[350px] h-[50px] border border-transparent border-b-gray-400"
-          value={userInfo.user_bio ? userInfo.user_bio : bio}
-          onChange={(e) => setBio(e.target.value)}
+          value={userInfo.user_bio ? userInfo.user_bio : ""}
+          onChange={(e) => {
+            setUserInfo({
+              ...userInfo,
+              user_bio: e.target.value,
+            });
+          }}
         />
       </div>
       <div className="fixed bottom-12 transform -translate-x-1/2 left-1/2">

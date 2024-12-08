@@ -5,6 +5,7 @@ import PostShimmer from "../Shimmers/PostShimmer";
 import { LEFT_ARROW, RIGHT_ARROW } from "../assets/icons-images/icons";
 import { getTimeStamp } from "../helpers/getTimestamp";
 import UserDetailsContext from "../contexts/UserDetails";
+import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
 
 const Feeds = () => {
   const [posts, setPosts] = useState([]);
@@ -39,7 +40,9 @@ const Feeds = () => {
           <div className="flex ml-[17px] p-1 items-center">
             <div>
               <img
-                src={userInfo.user_photo}
+                src={
+                  userInfo.user_photo ? userInfo.user_photo : USER_DEFAULT_IMG
+                }
                 alt="loading"
                 className="w-[75px] h-[75px] rounded-full"
               />

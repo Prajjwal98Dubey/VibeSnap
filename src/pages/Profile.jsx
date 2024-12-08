@@ -14,14 +14,16 @@ const Profile = () => {
     <>
       <div className="w-full relative">
         <img
-          src={userInfo.user_background}
+          src={
+            userInfo.user_background ? userInfo.user_background : BG_DEFAULT_IMG
+          }
           alt="loading"
           loading="lazy"
           className="w-full h-[200px] rounded-b-[20px]"
         />
         <div className="absolute top-[140px] left-[20px]">
           <img
-            src={userInfo.user_photo}
+            src={userInfo.user_photo ? userInfo.user_photo : USER_DEFAULT_IMG}
             alt="loading"
             loading="lazy"
             className="w-[115px] h-[115px] rounded-full border border-gray-400"
