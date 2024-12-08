@@ -8,10 +8,12 @@ export const checkIfUserExistsInDb = async (email) => {
   );
   const querySnapshot = await getDocs(q);
   if (!querySnapshot.empty) {
+    let userDetails = {};
     querySnapshot.forEach((doc) => {
       localStorage.setItem("sm-auth", JSON.stringify(doc.data()));
+      userDetails = doc.data();
     });
-    return true;
+    return userDetails;
   }
   return false;
 };

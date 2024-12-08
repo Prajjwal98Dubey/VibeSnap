@@ -1,14 +1,16 @@
 import { collection, getDocs } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db } from "../firebase/firebase";
 import PostShimmer from "../Shimmers/PostShimmer";
 import { LEFT_ARROW, RIGHT_ARROW } from "../assets/icons-images/icons";
 import { getTimeStamp } from "../helpers/getTimestamp";
+import UserDetailsContext from "../contexts/UserDetails";
 
 const Feeds = () => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState([]);
+  const { userInfo, setUserInfo } = useContext(UserDetailsContext);
   useEffect(() => {
     const getAllPosts = async () => {
       const querySnapshot = await getDocs(collection(db, "posts"));
@@ -19,9 +21,12 @@ const Feeds = () => {
       setPosts(allPosts);
       setImageIndex(Array(allPosts.length).fill(0));
       setIsLoading(false);
+      if (Object.keys(userInfo).length === 0) {
+        setUserInfo(JSON.parse(localStorage.getItem("sm-auth")));
+      }
     };
     getAllPosts();
-  }, []);
+  }, [setUserInfo, userInfo]);
 
   return (
     <>
@@ -34,7 +39,7 @@ const Feeds = () => {
           <div className="flex ml-[17px] p-1 items-center">
             <div>
               <img
-                src={JSON.parse(localStorage.getItem("sm-auth")).user_photo}
+                src={userInfo.user_photo}
                 alt="loading"
                 className="w-[75px] h-[75px] rounded-full"
               />
@@ -45,7 +50,7 @@ const Feeds = () => {
               </div>
               <div>
                 <p className="text-[25px] font-semibold">
-                  {JSON.parse(localStorage.getItem("sm-auth")).user_name}
+                  {userInfo.user_name}
                 </p>
               </div>
             </div>
@@ -55,7 +60,6 @@ const Feeds = () => {
               Feeds
             </p>
           </div>
-          {/* {console.log(imageIndex)} */}
           {posts.map((post, index) => (
             <div
               key={post.post_id}

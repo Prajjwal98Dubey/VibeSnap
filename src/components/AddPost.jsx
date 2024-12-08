@@ -4,19 +4,26 @@ import {
   uploadBytes,
   uploadString,
 } from "firebase/storage";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db, storage } from "../firebase/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import { nanoid } from "nanoid";
 import { EDIT_ICON } from "../assets/icons-images/icons";
 import WebCam from "./WebCam";
+import UserDetailsContext from "../contexts/UserDetails";
 const AddPost = () => {
   const [desc, setDesc] = useState("");
   const [tags, setTags] = useState([]);
   const [tagName, setTagName] = useState("");
   const [imageUrls, setImageUrls] = useState([]);
   const [webCamUrl, setWebCamUrl] = useState("");
+  const { userInfo, setUserInfo } = useContext(UserDetailsContext);
+  useEffect(() => {
+    if (Object.keys(userInfo).length === 0)
+      setUserInfo(JSON.parse(localStorage.getItem("sm-auth")));
+  }, [setUserInfo, userInfo]);
+
   const handleUploadImage = (e) => {
     // if (!imageUpload) return alert("select some image to upload.");
     const imageName = e.target.files[0].name + Date.now();
@@ -37,8 +44,7 @@ const AddPost = () => {
     }
   };
   const handleWebCamImageUpload = () => {
-    const imageName =
-      JSON.parse(localStorage.getItem("sm-auth")).user_name + Date.now();
+    const imageName = userInfo.user_name + Date.now();
     const imageStorageRef = ref(storage, `images/${imageName}`);
     uploadString(imageStorageRef, webCamUrl, "data_url").then(() => {
       getDownloadURL(imageStorageRef)
@@ -53,9 +59,9 @@ const AddPost = () => {
     try {
       const docRef = await addDoc(collection(db, "posts"), {
         post_id: nanoid(),
-        user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
-        user_name: JSON.parse(localStorage.getItem("sm-auth")).user_name,
-        user_photo: JSON.parse(localStorage.getItem("sm-auth")).user_photo,
+        user_email: userInfo.user_email,
+        user_name: userInfo.user_name,
+        user_photo: userInfo.user_photo,
         desc: desc,
         tags: tags,
         images: imageUrls,
@@ -70,10 +76,10 @@ const AddPost = () => {
     <>
       <div className="flex justify-center">
         <div>
-          <div className="p-4">
+          <div className="pl-4 pt-2">
             <p className="font-bold text-[21px] font-sans">New Post</p>
           </div>
-          <div className="ml-6 mb-2">
+          <div className="ml-6 mb-1">
             <WebCam
               setWebCamUrl={setWebCamUrl}
               handleWebCamImageUpload={handleWebCamImageUpload}
@@ -84,7 +90,7 @@ const AddPost = () => {
               src={BG_DEFAULT_IMG}
               alt="loading"
               loading="lazy"
-              className="w-[92%] h-[260px] rounded-b-md"
+              className="w-[92%] h-[170px] rounded-b-md"
             />
             <div className="w-[87px] h-[87px] rounded-full flex justify-center items-center absolute transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 bg-gray-400">
               <img

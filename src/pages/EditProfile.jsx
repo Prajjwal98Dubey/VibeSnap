@@ -1,7 +1,7 @@
 import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
 import EDIT_ICON from "../assets/icons-images/edit_icon.png";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase/firebase";
 import {
@@ -20,8 +20,11 @@ const EditProfile = () => {
   const [bio, setBio] = useState("");
   const [userPhoto, setUserPhoto] = useState("");
   const [backgroundPhoto, setBackgroundPhoto] = useState("");
-  const [userDetails] = useState(JSON.parse(localStorage.getItem("sm-auth")));
-  const { setUserInfo } = useContext(UserDetailsContext);
+  const { userInfo, setUserInfo } = useContext(UserDetailsContext);
+  useEffect(() => {
+    if (Object.keys(userInfo).length === 0)
+      setUserInfo(JSON.parse(localStorage.getItem("sm-auth")));
+  }, [setUserInfo, userInfo]);
 
   const handleUserPhoto = (e) => {
     let userPhotoName = e.target.files[0].name + Date.now();
@@ -57,7 +60,7 @@ const EditProfile = () => {
     if (!userName) return alert("name is mandatory field.");
     const q = query(
       collection(db, "users_details"),
-      where("user_email", "==", userDetails.user_email)
+      where("user_email", "==", userInfo.user_email)
     );
 
     const querySnapshot = await getDocs(q);
@@ -66,18 +69,18 @@ const EditProfile = () => {
       querySnapshot.forEach(async (docSnap) => {
         const docRef = doc(db, "users_details", docSnap.id);
         await updateDoc(docRef, {
-          user_name: userDetails.user_name,
-          user_bio: userDetails.user_bio,
-          user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
-          user_photo: userDetails.user_photo,
-          user_background: userDetails.user_background,
+          user_name: userInfo,
+          user_bio: userInfo.user_bio,
+          user_email: userInfo.user_email,
+          user_photo: userInfo.user_photo,
+          user_background: userInfo.user_background,
         });
         setUserInfo({
-          user_name: userDetails.user_name,
-          user_bio: userDetails.user_bio,
-          user_email: JSON.parse(localStorage.getItem("sm-auth")).user_email,
-          user_photo: userDetails.user_photo,
-          user_background: userDetails.user_background,
+          user_name: userInfo.user_name,
+          user_bio: userInfo.user_bio,
+          user_email: userInfo.user_email,
+          user_photo: userInfo.user_photo,
+          user_background: userInfo.user_background,
         });
 
         console.log(`Document with ID ${docSnap.id} successfully updated!`);
@@ -118,9 +121,7 @@ const EditProfile = () => {
         </div>
         <img
           src={
-            userDetails.user_background
-              ? userDetails.user_background
-              : BG_DEFAULT_IMG
+            userInfo.user_background ? userInfo.user_background : BG_DEFAULT_IMG
           }
           alt="loading"
           loading="lazy"
@@ -136,9 +137,7 @@ const EditProfile = () => {
         </div>
         <div className="absolute top-[140px] left-[20px]">
           <img
-            src={
-              userDetails.user_photo ? userDetails.user_photo : USER_DEFAULT_IMG
-            }
+            src={userInfo.user_photo ? userInfo.user_photo : USER_DEFAULT_IMG}
             alt="loading"
             loading="lazy"
             className="w-[115px] h-[115px] rounded-full border border-gray-400"
@@ -161,7 +160,7 @@ const EditProfile = () => {
           type="text"
           placeholder="Virat Kohli"
           className="w-[350px] h-[50px] border border-transparent border-b-gray-400"
-          value={userDetails.user_name ? userDetails.user_name : userName}
+          value={userInfo.user_name ? userInfo.user_name : userName}
           onChange={(e) => setUserName(e.target.value)}
         />
       </div>
@@ -173,7 +172,7 @@ const EditProfile = () => {
           type="text"
           placeholder="Hi, I am Goat !!!"
           className="p-1 w-[350px] h-[50px] border border-transparent border-b-gray-400"
-          value={userDetails.user_bio ? userDetails.user_bio : bio}
+          value={userInfo.user_bio ? userInfo.user_bio : bio}
           onChange={(e) => setBio(e.target.value)}
         />
       </div>

@@ -1,13 +1,23 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { loginUser } from "../firebase/firebaseLogins";
 import { useNavigate } from "react-router-dom";
+import UserDetailsContext from "../contexts/UserDetails";
 
 const Login = ({ setToggleRegisterOrLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleLoginUser = () => loginUser(email, password, navigate);
+  const { setUserInfo } = useContext(UserDetailsContext);
+  const handleLoginUser = async () => {
+    let userDetails = await loginUser(email, password);
+    if (userDetails) {
+      setUserInfo(userDetails);
+      navigate("/feeds");
+    } else {
+      navigate("/edit-profile");
+    }
+  };
   return (
     <>
       <div className="flex justify-center">

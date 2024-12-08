@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import LOGO from "../assets/auth-page-images/logo.png";
 import { signInWithGoogle } from "../firebase/firebaseLogins.js";
 import RegisterUser from "./RegisterUser.jsx";
 import Login from "./Login.jsx";
 import { useNavigate } from "react-router-dom";
+import UserDetailsContext from "../contexts/UserDetails.js";
 
 const AuthBottomSheet = () => {
   const [toggleRegisterOrLogin, setToggleRegisterOrLogin] = useState(true);
   const navigate = useNavigate();
-  const handleGoogleSignIn = () => {
-    signInWithGoogle(navigate);
+  const { setUserInfo } = useContext(UserDetailsContext);
+  const handleGoogleSignIn = async () => {
+    let userDetails = await signInWithGoogle();
+    if (userDetails) {
+      setUserInfo(userDetails);
+      navigate("/feeds");
+    } else {
+      navigate("/edit-profile");
+    }
   };
   return (
     <>
