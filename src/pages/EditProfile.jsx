@@ -94,7 +94,6 @@ const EditProfile = () => {
             })
           );
         }
-
         console.log(`Document with ID ${docSnap.id} successfully updated!`);
       });
     } else {
