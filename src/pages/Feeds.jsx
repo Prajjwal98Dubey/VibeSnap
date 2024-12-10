@@ -12,6 +12,7 @@ import { LEFT_ARROW, RIGHT_ARROW } from "../assets/icons-images/icons";
 import { getTimeStamp } from "../helpers/getTimestamp";
 import UserDetailsContext from "../contexts/UserDetails";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
+import { Link } from "react-router-dom";
 
 const Feeds = () => {
   const [posts, setPosts] = useState([]);
@@ -21,8 +22,6 @@ const Feeds = () => {
   const [trigger, setTrigger] = useState(false);
   const observer = useRef();
   const lastNodeRef = (node) => {
-    console.log("calling for infinite scroll.");
-    console.log("in infinte scroll function",lastVisible)
     if (isLoading || lastVisible === undefined) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(
@@ -80,7 +79,6 @@ const Feeds = () => {
 
   return (
     <>
-      {console.log("all posts", posts)}
       {isLoading ? (
         <div className="flex justify-center">
           <PostShimmer />
@@ -89,13 +87,15 @@ const Feeds = () => {
         <div className="p-1">
           <div className="flex ml-[17px] p-1 items-center">
             <div>
-              <img
-                src={
-                  userInfo.user_photo ? userInfo.user_photo : USER_DEFAULT_IMG
-                }
-                alt="loading"
-                className="w-[75px] h-[75px] rounded-full"
-              />
+              <Link to="/profile">
+                <img
+                  src={
+                    userInfo.user_photo ? userInfo.user_photo : USER_DEFAULT_IMG
+                  }
+                  alt="loading"
+                  className="w-[75px] h-[75px] rounded-full"
+                />
+              </Link>
             </div>
             <div className="ml-[7px]">
               <div>
@@ -125,7 +125,9 @@ const Feeds = () => {
                     <div>
                       <div className="">
                         <img
-                          src={post.user_photo}
+                          src={
+                            post.user_photo ? post.user_photo : USER_DEFAULT_IMG
+                          }
                           className="w-[70px] h-[70px] rounded-full"
                           alt="loading"
                         />
@@ -158,7 +160,17 @@ const Feeds = () => {
                     </div>
                   </div>
                   <div className="p-1 flex justify-center relative">
-                    {post.images.length > 1 && (
+                    {post.isVideo && (
+                      <div>
+                        <video
+                          controls
+                          className="w-[96%] h-[210px] rounded-md"
+                        >
+                          <source src={post.images[0]} />
+                        </video>
+                      </div>
+                    )}
+                    {!post.isVideo && post.images.length > 1 && (
                       <div
                         className="absolute left-4 top-[45%] bg-[#313131] p-1 rounded-full"
                         onClick={() => {
@@ -182,7 +194,7 @@ const Feeds = () => {
                         />
                       </div>
                     )}
-                    {post.images.length > 1 && (
+                    {!post.isVideo && post.images.length > 1 && (
                       <div
                         className="absolute right-4 top-[45%] bg-[#313131] p-1 rounded-full"
                         onClick={() => {
@@ -207,12 +219,14 @@ const Feeds = () => {
                         />
                       </div>
                     )}
-                    <img
-                      className="w-[96%] h-[210px] rounded-md"
-                      src={post.images[imageIndex[index]]}
-                      alt="loading"
-                      loading="lazy"
-                    />
+                    {!post.isVideo && (
+                      <img
+                        className="w-[96%] h-[210px] rounded-md"
+                        src={post.images[imageIndex[index]]}
+                        alt="loading"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                 </div>
               );
@@ -226,13 +240,15 @@ const Feeds = () => {
                     <div>
                       <div className="">
                         <img
-                          src={post.user_photo}
+                          src={
+                            post.user_photo ? post.user_photo : USER_DEFAULT_IMG
+                          }
                           className="w-[70px] h-[70px] rounded-full"
                           alt="loading"
                         />
                       </div>
                     </div>
-                    <div className="ml-[6px] mt-[3px]">
+                    <div className="ml-[6px] mt-[10px]">
                       <div>
                         <p className="text-[17px]">{post.user_name}</p>
                       </div>
@@ -259,7 +275,17 @@ const Feeds = () => {
                     </div>
                   </div>
                   <div className="p-1 flex justify-center relative">
-                    {post.images.length > 1 && (
+                    {post.isVideo && (
+                      <div>
+                        <video
+                          controls
+                          className="w-[96%] h-[210px] rounded-md"
+                        >
+                          <source src={post.images[0]} />
+                        </video>
+                      </div>
+                    )}
+                    {!post.isVideo && post.images.length > 1 && (
                       <div
                         className="absolute left-4 top-[45%] bg-[#313131] p-1 rounded-full"
                         onClick={() => {
@@ -283,7 +309,7 @@ const Feeds = () => {
                         />
                       </div>
                     )}
-                    {post.images.length > 1 && (
+                    {!post.isVideo && post.images.length > 1 && (
                       <div
                         className="absolute right-4 top-[45%] bg-[#313131] p-1 rounded-full"
                         onClick={() => {
@@ -308,12 +334,14 @@ const Feeds = () => {
                         />
                       </div>
                     )}
-                    <img
-                      className="w-[96%] h-[210px] rounded-md"
-                      src={post.images[imageIndex[index]]}
-                      alt="loading"
-                      loading="lazy"
-                    />
+                    {!post.isVideo && (
+                      <img
+                        className="w-[96%] h-[210px] rounded-md"
+                        src={post.images[imageIndex[index]]}
+                        alt="loading"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                 </div>
               );
