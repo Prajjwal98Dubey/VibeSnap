@@ -10,6 +10,7 @@ import { collection, addDoc } from "firebase/firestore";
 import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import { nanoid } from "nanoid";
 import { EDIT_ICON } from "../assets/icons-images/icons";
+import toast from "react-hot-toast";
 import WebCam from "./WebCam";
 import UserDetailsContext from "../contexts/UserDetails";
 const AddPost = () => {
@@ -18,6 +19,7 @@ const AddPost = () => {
   const [tagName, setTagName] = useState("");
   const [imageUrls, setImageUrls] = useState([]);
   const [webCamUrl, setWebCamUrl] = useState("");
+  const [isVideo, setIsVideo] = useState(false);
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
   useEffect(() => {
     if (Object.keys(userInfo).length === 0)
@@ -25,14 +27,15 @@ const AddPost = () => {
   }, [setUserInfo, userInfo]);
 
   const handleUploadImage = (e) => {
-    // if (!imageUpload) return alert("select some image to upload.");
     const imageName = e.target.files[0].name + Date.now();
+    if (e.target.files[0].type.includes("video")) setIsVideo(true);
     const imageStorageRef = ref(storage, `images/${imageName}`);
     uploadBytes(imageStorageRef, e.target.files[0]).then(() => {
       getDownloadURL(imageStorageRef)
         .then((url) => {
           setImageUrls([...imageUrls, url]);
-          alert("file uploaded");
+          // alert("file uploaded");
+          toast.success("Image Uploaded !!!");
         })
         .catch((err) => console.log(err));
     });
@@ -50,14 +53,15 @@ const AddPost = () => {
       getDownloadURL(imageStorageRef)
         .then((url) => {
           setImageUrls([...imageUrls, url]);
-          alert("file uploaded");
+          // alert("file uploaded");
+          toast.success("Image Uploaded !!!");
         })
         .catch((err) => console.log(err));
     });
   };
   const handleUploadPost = async () => {
     try {
-      const docRef = await addDoc(collection(db, "posts"), {
+      await addDoc(collection(db, "posts"), {
         post_id: nanoid(),
         user_email: userInfo.user_email,
         user_name: userInfo.user_name,
@@ -65,9 +69,10 @@ const AddPost = () => {
         desc: desc,
         tags: tags,
         images: imageUrls,
+        isVideo: isVideo,
         timestamp: Date.now(),
       });
-      console.log("Document written with ID: ", docRef.id);
+      toast.success("Post Upload !!!");
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -76,8 +81,8 @@ const AddPost = () => {
     <>
       <div className="flex justify-center">
         <div>
-          <div className="pl-4 pt-2">
-            <p className="font-bold text-[21px] font-sans">New Post</p>
+          <div className="pl-2 pt-2">
+            <p className="font-medium text-[23px] font-sans">New Post</p>
           </div>
           <div className="ml-6 mb-1">
             <WebCam
@@ -136,6 +141,11 @@ const AddPost = () => {
               placeholder="add tags"
               value={tagName}
               onChange={(e) => setTagName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleTags();
+                }
+              }}
             />
             <button
               className="w-[100px] h-[50px] rounded-md bg-[#313131]  cursor-pointer text-white font-bold m-1"
@@ -171,3 +181,5 @@ const AddPost = () => {
 };
 
 export default AddPost;
+
+/// video/mp4

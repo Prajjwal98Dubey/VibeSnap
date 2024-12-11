@@ -34,7 +34,7 @@ const RegisterUser = ({ setToggleRegisterOrLogin }) => {
           </div>
           <div className="flex justify-center m-1">
             <button
-              className="rounded-4xl bg-[#313131] text-white text-[17px] w-[200px] h-[40px] font-bold"
+              className="rounded-4xl bg-[#313131] text-white text-[17px] w-[200px] h-[40px] font-medium"
               onClick={handleRegisterUser}
             >
               Register

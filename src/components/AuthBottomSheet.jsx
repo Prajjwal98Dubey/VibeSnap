@@ -1,10 +1,13 @@
 import { useContext, useState } from "react";
 import LOGO from "../assets/auth-page-images/logo.png";
 import { signInWithGoogle } from "../firebase/firebaseLogins.js";
-import RegisterUser from "./RegisterUser.jsx";
-import Login from "./Login.jsx";
+import { lazy } from "react";
+import toast from "react-hot-toast";
+const RegisterUser = lazy(() => import("./RegisterUser.jsx"));
+const Login = lazy(() => import("./Login.jsx"));
 import { useNavigate } from "react-router-dom";
 import UserDetailsContext from "../contexts/UserDetails.js";
+import GOOGLE_LOGO from "../assets/auth-page-images/google-logo.png";
 
 const AuthBottomSheet = () => {
   const [toggleRegisterOrLogin, setToggleRegisterOrLogin] = useState(true);
@@ -19,9 +22,25 @@ const AuthBottomSheet = () => {
       navigate("/edit-profile");
     }
   };
+  const handleGuestLogin = () => {
+    setUserInfo({
+      user_name: "Guest",
+      user_email: "guest@gmail.com",
+    });
+    if (localStorage.getItem("sm-auth")) localStorage.removeItem("sm-auth");
+    localStorage.setItem(
+      "sm-auth",
+      JSON.stringify({
+        user_name: "Guest",
+        user_email: "guest@gmail.com",
+      })
+    );
+    navigate("/feeds");
+    toast.success("Guest Logged in")
+  };
   return (
     <>
-      <div className="w-[100vw] h-[360px] bg-white rounded-t-bottom-sheet">
+      <div className="w-[100vw] h-[440px] bg-white rounded-t-bottom-sheet">
         <div className="flex justify-center pt-6">
           <div className="flex justify-center items-center m-1 p-1">
             <img
@@ -47,11 +66,24 @@ const AuthBottomSheet = () => {
             <RegisterUser setToggleRegisterOrLogin={setToggleRegisterOrLogin} />
           )}
         </div>
+        <div className="mt-[4px] mb-[4px] flex justify-center">
+          <button
+            className="w-[200px] h-[40px] rounded-[26px] bg-[#313131] text-white flex justify-center items-center font-medium"
+            onClick={handleGuestLogin}
+          >
+            Guest Login
+          </button>
+        </div>
         <div className="flex justify-center mt-[10px]">
           <button className="w-[275px] h-[55px] bg-[#313131] rounded-4xl ">
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center">
+              <img
+                src={GOOGLE_LOGO}
+                alt="loading"
+                className="flex justify-center items-center w-[20px] h-[18px] m-1"
+              />
               <p
-                className="text-white font-bold text-center"
+                className="text-white font-medium text-center m-1"
                 onClick={handleGoogleSignIn}
               >
                 Continue with Google

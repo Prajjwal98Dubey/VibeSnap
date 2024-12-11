@@ -1,12 +1,21 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Auth from "./pages/Auth";
-import Feeds from "./pages/Feeds";
-import AddPost from "./components/AddPost";
-import Profile from "./pages/Profile";
-import EditProfile from "./pages/EditProfile";
+import { Suspense, lazy } from "react";
+import { Toaster } from "react-hot-toast";
+import PageLoader from "./components/PageLoader";
+
+const Auth = lazy(() => import("./pages/Auth"));
+const AddPost = lazy(() => import("./components/AddPost"));
+const Profile = lazy(() => import("./pages/Profile"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
+const Feeds = lazy(() => import("./pages/Feeds"));
 
 function App() {
-  return <RouterProvider router={appRouter} />;
+  return (
+    <>
+      <RouterProvider router={appRouter} />
+      <Toaster />
+    </>
+  );
 }
 
 export default App;
@@ -14,22 +23,42 @@ export default App;
 const appRouter = createBrowserRouter([
   {
     path: "/",
-    element: <Auth />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Auth />
+      </Suspense>
+    ),
   },
   {
     path: "/feeds",
-    element: <Feeds />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Feeds />
+      </Suspense>
+    ),
   },
   {
     path: "/add",
-    element: <AddPost />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <AddPost />
+      </Suspense>
+    ),
   },
   {
     path: "/profile",
-    element: <Profile />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Profile />,
+      </Suspense>
+    ),
   },
   {
     path: "/edit-profile",
-    element: <EditProfile />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <EditProfile />
+      </Suspense>
+    ),
   },
 ]);
