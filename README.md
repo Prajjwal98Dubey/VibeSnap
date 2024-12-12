@@ -1,4 +1,4 @@
-# VibeSnap - a social media network
+# [VibeSnap](https://vibe-snap.vercel.app/), a social media network
 
 - best way to use VibeSnap is either on mobile phones browser or on mobile size screen on PC web browser.
 
