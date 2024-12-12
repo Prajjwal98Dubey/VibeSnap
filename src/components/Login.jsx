@@ -13,6 +13,7 @@ const Login = ({ setToggleRegisterOrLogin }) => {
   const { setUserInfo } = useContext(UserDetailsContext);
   const [isForgetPassOpen, setIsForgetPassOpen] = useState(false);
   const handleLoginUser = async () => {
+    if (!email || !password) return toast.error("enter all mandatory fields.");
     try {
       let userDetails = await loginUser(email, password);
       if (userDetails) {
@@ -23,7 +24,7 @@ const Login = ({ setToggleRegisterOrLogin }) => {
       }
     } catch {
       toast.error("Invalid Credentials !!!");
-      console.log("inside the catch block")
+      console.log("inside the catch block");
     }
   };
   return (

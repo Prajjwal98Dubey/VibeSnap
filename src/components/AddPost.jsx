@@ -5,14 +5,16 @@ import {
   uploadString,
 } from "firebase/storage";
 import { useContext, useEffect, useState } from "react";
-import { db, storage } from "../firebase/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { auth, db, storage } from "../firebase/firebase";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import BG_DEFAULT_IMG from "../assets/icons-images/bg_default.png";
 import { nanoid } from "nanoid";
-import { EDIT_ICON } from "../assets/icons-images/icons";
+import { EDIT_ICON, NEW_POST_LEFT_ICON } from "../assets/icons-images/icons";
 import toast from "react-hot-toast";
 import WebCam from "./WebCam";
 import UserDetailsContext from "../contexts/UserDetails";
+import { onAuthStateChanged } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
 const AddPost = () => {
   const [desc, setDesc] = useState("");
   const [tags, setTags] = useState([]);
@@ -21,10 +23,33 @@ const AddPost = () => {
   const [webCamUrl, setWebCamUrl] = useState("");
   const [isVideo, setIsVideo] = useState(false);
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
+  const [videoConstraint] = useState({
+    facingMode: "user", // Use "user" for front camera
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+  });
+  const navigate = useNavigate();
   useEffect(() => {
-    if (Object.keys(userInfo).length === 0)
-      setUserInfo(JSON.parse(localStorage.getItem("sm-auth")));
-  }, [setUserInfo, userInfo]);
+    if (Object.keys(userInfo).length === 0) {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const q = query(
+            collection(db, "users-details"),
+            where("user_email", "==", user.email)
+          );
+          const documentSnapShot = await getDocs(q);
+          if (!documentSnapShot.empty) {
+            documentSnapShot.forEach((doc) => {
+              setUserInfo({ ...doc.data() });
+            });
+          }
+        } else {
+          navigate("/");
+          toast.error("sign in to access.");
+        }
+      });
+    }
+  }, [navigate, userInfo, setUserInfo]);
 
   const handleUploadImage = (e) => {
     const imageName = e.target.files[0].name + Date.now();
@@ -61,18 +86,25 @@ const AddPost = () => {
   };
   const handleUploadPost = async () => {
     try {
-      await addDoc(collection(db, "posts"), {
-        post_id: nanoid(),
-        user_email: userInfo.user_email,
-        user_name: userInfo.user_name,
-        user_photo: userInfo.user_photo,
-        desc: desc,
-        tags: tags,
-        images: imageUrls,
-        isVideo: isVideo,
-        timestamp: Date.now(),
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          await addDoc(collection(db, "posts"), {
+            post_id: nanoid(),
+            user_email: userInfo.user_email,
+            user_name: userInfo.user_name,
+            user_photo: userInfo.user_photo,
+            desc: desc,
+            tags: tags,
+            images: imageUrls,
+            isVideo: isVideo,
+            timestamp: Date.now(),
+          });
+          toast.success("Post Upload !!!");
+          navigate("/feeds");
+        } else {
+          toast.error("you might be a guest user or not signed in");
+        }
       });
-      toast.success("Post Upload !!!");
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -81,13 +113,18 @@ const AddPost = () => {
     <>
       <div className="flex justify-center">
         <div>
-          <div className="pl-2 pt-2">
-            <p className="font-medium text-[23px] font-sans">New Post</p>
+          <div className="pt-2 flex">
+            <Link to="/profile">
+            <div className="w-fit h-fit p-1 m-1 flex justify-center items-center"><img src={NEW_POST_LEFT_ICON} alt="loading" /></div>
+            </Link>
+            <p className="font-medium text-[23px] font-sans m-1 text-center mt-[7px]">New Post</p>
           </div>
           <div className="ml-6 mb-1">
             <WebCam
               setWebCamUrl={setWebCamUrl}
               handleWebCamImageUpload={handleWebCamImageUpload}
+              videoConstraint={videoConstraint}
+              muted={true}
             />
           </div>
           <div className="w-full flex justify-center relative">
@@ -137,7 +174,7 @@ const AddPost = () => {
           </div>
           <div className="flex justify-center">
             <input
-              className="w-[65%] h-[50px] rounded-md border border-gray-300 p-1 m-1"
+              className="w-[62%] h-[50px] rounded-md border border-gray-300 p-1 m-1"
               placeholder="add tags"
               value={tagName}
               onChange={(e) => setTagName(e.target.value)}
@@ -155,7 +192,7 @@ const AddPost = () => {
             </button>
           </div>
           {tags.length >= 1 && (
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap ml-[5px]">
               {tags.map((tag, index) => (
                 <div
                   key={index}

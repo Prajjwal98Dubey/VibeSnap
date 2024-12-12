@@ -4,15 +4,18 @@ import {
   limit,
   query,
   startAfter,
+  where,
 } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
-import { db } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
 import PostShimmer from "../Shimmers/PostShimmer";
 import { LEFT_ARROW, RIGHT_ARROW } from "../assets/icons-images/icons";
 import { getTimeStamp } from "../helpers/getTimestamp";
 import UserDetailsContext from "../contexts/UserDetails";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import toast from "react-hot-toast";
 
 const Feeds = () => {
   const [posts, setPosts] = useState([]);
@@ -20,6 +23,7 @@ const Feeds = () => {
   const [imageIndex, setImageIndex] = useState([]);
   const [lastVisible, setLastVisible] = useState("");
   const [trigger, setTrigger] = useState(false);
+  const navigate = useNavigate();
   const observer = useRef();
   const lastNodeRef = (node) => {
     if (isLoading || lastVisible === undefined) return;
@@ -42,37 +46,53 @@ const Feeds = () => {
   useEffect(() => {
     const getAllPosts = async () => {
       if (lastVisible === undefined) return alert("all posts over");
-      if (Object.keys(userInfo).length === 0) {
-        setUserInfo(JSON.parse(localStorage.getItem("sm-auth")));
-      }
-      if (posts.length === 0) {
-        const initialFetch = query(collection(db, "posts"), limit(3));
-        const documentSnapshots = await getDocs(initialFetch);
-        const lV = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        setLastVisible(lV);
-        let allPosts = [];
-        documentSnapshots.forEach((doc) => {
-          allPosts.push(doc.data());
-        });
-        setPosts(allPosts);
-        setImageIndex(Array(allPosts.length).fill(0));
-        setIsLoading(false);
-      } else {
-        const nextFetch = query(
-          collection(db, "posts"),
-          startAfter(lastVisible),
-          limit(3)
-        );
-        const documentSnapshots = await getDocs(nextFetch);
-        const lV = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        setLastVisible(lV);
-        let allPosts = [];
-        documentSnapshots.forEach((doc) => {
-          allPosts.push(doc.data());
-        });
-        setPosts([...posts, ...allPosts]);
-        setImageIndex([...imageIndex, ...Array(allPosts.length).fill(0)]);
-      }
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          if (Object.keys(userInfo).length === 0) {
+            const q = query(
+              collection(db, "users-details"),
+              where("user_email", "==", user.email)
+            );
+            const documentSnapShot = await getDocs(q);
+            if (!documentSnapShot.empty) {
+              documentSnapShot.forEach((doc) => setUserInfo({ ...doc.data() }));
+            }
+          }
+          if (posts.length === 0) {
+            const initialFetch = query(collection(db, "posts"), limit(3));
+            const documentSnapshots = await getDocs(initialFetch);
+            const lV =
+              documentSnapshots.docs[documentSnapshots.docs.length - 1];
+            setLastVisible(lV);
+            let allPosts = [];
+            documentSnapshots.forEach((doc) => {
+              allPosts.push(doc.data());
+            });
+            setPosts(allPosts);
+            setImageIndex(Array(allPosts.length).fill(0));
+            setIsLoading(false);
+          } else {
+            const nextFetch = query(
+              collection(db, "posts"),
+              startAfter(lastVisible),
+              limit(3)
+            );
+            const documentSnapshots = await getDocs(nextFetch);
+            const lV =
+              documentSnapshots.docs[documentSnapshots.docs.length - 1];
+            setLastVisible(lV);
+            let allPosts = [];
+            documentSnapshots.forEach((doc) => {
+              allPosts.push(doc.data());
+            });
+            setPosts([...posts, ...allPosts]);
+            setImageIndex([...imageIndex, ...Array(allPosts.length).fill(0)]);
+          }
+        } else {
+          toast.error("sign in to access.");
+          navigate("/");
+        }
+      });
     };
     getAllPosts();
   }, [trigger]);
@@ -87,6 +107,9 @@ const Feeds = () => {
         <div className="p-1">
           <div className="flex ml-[17px] p-1 items-center">
             <div>
+              {isLoading && (
+                <div className="w-[75px] h-[75px] rounded-full bg-gray-400 animate-pulse"></div>
+              )}
               <Link to="/profile">
                 <img
                   src={
@@ -98,7 +121,7 @@ const Feeds = () => {
               </Link>
             </div>
             <div className="ml-[7px]">
-              <div>
+              <div className="">
                 <p className="text-gray-500 text-[16px]">Welcome Back,</p>
               </div>
               <div>

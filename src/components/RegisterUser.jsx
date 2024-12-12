@@ -2,13 +2,19 @@
 import { useState } from "react";
 import { registerUser } from "../firebase/firebaseLogins.js";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const RegisterUser = ({ setToggleRegisterOrLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const handleRegisterUser = () => {
-    registerUser(email, password, navigate);
+    if (!email || !password) return toast.error("enter all mandatory fields.");
+    try {
+      registerUser(email, password, navigate);
+    } catch (error) {
+      toast.error(error);
+    }
   };
   return (
     <>

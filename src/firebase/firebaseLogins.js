@@ -12,6 +12,7 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
+    if (localStorage.getItem("sm-auth")) localStorage.removeItem("sm-auth");
     let isUserExists = await checkIfUserExistsInDb(user.email);
     if (isUserExists) {
       return isUserExists;
@@ -31,6 +32,7 @@ export const registerUser = (email, password, navigate) => {
   createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
+      if (localStorage.getItem("sm-auth")) localStorage.removeItem("sm-auth");
       localStorage.setItem(
         "sm-auth",
         JSON.stringify({ user_email: user.email })
@@ -38,7 +40,7 @@ export const registerUser = (email, password, navigate) => {
       navigate("/edit-profile");
     })
     .catch((error) => {
-      console.log(error);
+      throw new Error(error);
     });
 };
 
@@ -49,6 +51,7 @@ export const loginUser = async (email, password) => {
       email,
       password
     );
+    if (localStorage.getItem("sm-auth")) localStorage.removeItem("sm-auth");
     const user = userCredential.user;
     let isUserExists = await checkIfUserExistsInDb(user.email);
     if (isUserExists) {
@@ -61,6 +64,6 @@ export const loginUser = async (email, password) => {
       return false;
     }
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
