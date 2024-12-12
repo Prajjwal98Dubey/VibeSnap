@@ -18,7 +18,7 @@ import ProfileShimmer from "../Shimmers/ProfileShimmer";
 import toast from "react-hot-toast";
 const Profile = () => {
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     if (Object.keys(userInfo).length === 0) {

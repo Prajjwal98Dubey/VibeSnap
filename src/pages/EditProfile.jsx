@@ -76,7 +76,6 @@ const EditProfile = () => {
           getDownloadURL(bgImageRef)
             .then((url) => {
               setUserInfo({ ...userInfo, user_background: url });
-              // alert("background upload");
               toast.success("user photo uploaded !!");
             })
             .catch((err) => {
@@ -188,10 +187,9 @@ const EditProfile = () => {
 
   return (
     <>
-      {/* {console.log(userInfo)} */}
       <div className="w-full relative">
         <div className="absolute top-[20px] left-[20px] flex ">
-          <Link to="/profile">
+          <Link to={userInfo.user_name && "/profile"}>
             <div className=" p-1 m-1 flex justify-center items-center bg-white rounded-md">
               <img
                 src={NEW_POST_LEFT_ICON}
