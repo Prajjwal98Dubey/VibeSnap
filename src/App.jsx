@@ -8,6 +8,7 @@ const AddPost = lazy(() => import("./components/AddPost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const Feeds = lazy(() => import("./pages/Feeds"));
+const Error = lazy(() => import("./pages/Error"));
 
 function App() {
   return (
@@ -58,6 +59,14 @@ const appRouter = createBrowserRouter([
     element: (
       <Suspense fallback={<PageLoader />}>
         <EditProfile />
+      </Suspense>
+    ),
+  },
+  {
+    path: "*",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Error />
       </Suspense>
     ),
   },
