@@ -3,7 +3,7 @@
 - best way to use VibeSnap is either on mobile phones browser or on mobile size screen on PC web browser.
 
 ## Login / Register Page
-![Screenshot 2024-12-12 235205](https://github.com/user-attachments/assets/f3aed285-4c5a-4a92-a5f6-fdab29b22cdd)
+![Screenshot 2024-12-13 200033](https://github.com/user-attachments/assets/12da14b1-8531-4ad3-85c8-02b6fdf12ad5)
 
 ## Feeds
 https://github.com/user-attachments/assets/73ab6f59-caaa-4888-bc78-7ebc8b236c86
