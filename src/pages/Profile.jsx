@@ -29,7 +29,6 @@ const Profile = () => {
             where("user_email", "==", user.email)
           );
           const documentSnapShot = await getDocs(q);
-          console.log("in the profile page", documentSnapShot.empty);
           if (!documentSnapShot.empty) {
             documentSnapShot.forEach((doc) => {
               setUserInfo({ ...doc.data() });
@@ -48,6 +47,7 @@ const Profile = () => {
   const handleLogOut = async () => {
     try {
       await signOut(auth);
+      setUserInfo({});
       localStorage.removeItem("sm-auth");
       navigate("/");
       toast.success("Successfully logged out!!!");
@@ -82,10 +82,7 @@ const Profile = () => {
               className="w-full h-[200px] rounded-b-[20px]"
             />
             <Link to="/feeds">
-              <div
-                className="left-2 top-3 absolute bg-gray-600 rounded-full p-1 flex justify-center items-center cursor-pointer"
-                // onClick={handleLogOut}
-              >
+              <div className="left-2 top-3 absolute bg-gray-600 rounded-full p-1 flex justify-center items-center cursor-pointer">
                 <img
                   src={LEFT_ARROW}
                   alt="loading"

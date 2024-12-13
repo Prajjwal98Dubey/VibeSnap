@@ -40,7 +40,6 @@ const EditProfile = () => {
           }
         } else {
           navigate("/");
-          toast.error("sign in to access.");
         }
       });
     }
@@ -62,7 +61,7 @@ const EditProfile = () => {
             });
         });
       } else {
-        toast.error("guest cannot upload image !!!");
+        toast.error("sign in to upload!!!");
       }
     });
   };
@@ -76,14 +75,14 @@ const EditProfile = () => {
           getDownloadURL(bgImageRef)
             .then((url) => {
               setUserInfo({ ...userInfo, user_background: url });
-              toast.success("user photo uploaded !!");
+              toast.success("user background uploaded !!");
             })
             .catch((err) => {
               console.log(err);
             });
         });
       } else {
-        toast.error("guest cannot upload!!!");
+        toast.error("sign in to upload!!!");
       }
     });
   };
@@ -130,12 +129,10 @@ const EditProfile = () => {
             }
             toast.success("profile updated!!!");
             navigate("/profile");
-            console.log(`Document with ID ${docSnap.id} successfully updated!`);
           });
         } else {
-          console.log("No matching documents found.");
           try {
-            const docRef = await addDoc(collection(db, "users-details"), {
+            await addDoc(collection(db, "users-details"), {
               user_name: userInfo.user_name,
               user_bio: userInfo.user_bio ? userInfo.user_bio : "",
               user_email: JSON.parse(localStorage.getItem("sm-auth"))
@@ -173,14 +170,12 @@ const EditProfile = () => {
             }
             toast.success("profile updated!!!");
             navigate("/profile");
-
-            console.log("Document written with ID: ", docRef.id);
           } catch (e) {
             console.error("Error adding document: ", e);
           }
         }
       } else {
-        toast.error("guest can edit profile !!!");
+        toast.error("sign in to edit profile !!!");
       }
     });
   };

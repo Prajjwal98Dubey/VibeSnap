@@ -23,8 +23,8 @@ const AddPost = () => {
   const [webCamUrl, setWebCamUrl] = useState("");
   const [isVideo, setIsVideo] = useState(false);
   const { userInfo, setUserInfo } = useContext(UserDetailsContext);
-  const [videoConstraint] = useState({
-    facingMode: "user", // Use "user" for front camera
+  const [videoConstraint, setVideoConstraint] = useState({
+    facingMode: "user",
     width: { ideal: 1280 },
     height: { ideal: 720 },
   });
@@ -45,7 +45,6 @@ const AddPost = () => {
           }
         } else {
           navigate("/");
-          toast.error("sign in to access.");
         }
       });
     }
@@ -78,7 +77,6 @@ const AddPost = () => {
       getDownloadURL(imageStorageRef)
         .then((url) => {
           setImageUrls([...imageUrls, url]);
-          // alert("file uploaded");
           toast.success("Image Uploaded !!!");
         })
         .catch((err) => console.log(err));
@@ -115,9 +113,13 @@ const AddPost = () => {
         <div>
           <div className="pt-2 flex">
             <Link to="/profile">
-            <div className="w-fit h-fit p-1 m-1 flex justify-center items-center"><img src={NEW_POST_LEFT_ICON} alt="loading" /></div>
+              <div className="w-fit h-fit p-1 m-1 flex justify-center items-center">
+                <img src={NEW_POST_LEFT_ICON} alt="loading" />
+              </div>
             </Link>
-            <p className="font-medium text-[23px] font-sans m-1 text-center mt-[7px]">New Post</p>
+            <p className="font-medium text-[23px] font-sans m-1 text-center mt-[7px]">
+              New Post
+            </p>
           </div>
           <div className="ml-6 mb-1">
             <WebCam
@@ -126,6 +128,26 @@ const AddPost = () => {
               videoConstraint={videoConstraint}
               muted={true}
             />
+            <div className="flex justify-center mt-1 mb-1">
+              <button
+                className="bg-black text-white flex justify-center items-center p-2 rounded-md"
+                onClick={() => {
+                  if (videoConstraint.facingMode === "user") {
+                    setVideoConstraint({
+                      ...videoConstraint,
+                      facingMode: "environment",
+                    });
+                  } else {
+                    setVideoConstraint({
+                      ...videoConstraint,
+                      facingMode: "user",
+                    });
+                  }
+                }}
+              >
+                Switch
+              </button>
+            </div>
           </div>
           <div className="w-full flex justify-center relative">
             <img

@@ -15,7 +15,6 @@ import UserDetailsContext from "../contexts/UserDetails";
 import USER_DEFAULT_IMG from "../assets/icons-images/user_default.png";
 import { Link, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import toast from "react-hot-toast";
 
 const Feeds = () => {
   const [posts, setPosts] = useState([]);
@@ -89,7 +88,6 @@ const Feeds = () => {
             setImageIndex([...imageIndex, ...Array(allPosts.length).fill(0)]);
           }
         } else {
-          toast.error("sign in to access.");
           navigate("/");
         }
       });

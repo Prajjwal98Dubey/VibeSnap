@@ -1,26 +1,12 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import LOGO from "../assets/auth-page-images/logo.png";
-import { signInWithGoogle } from "../firebase/firebaseLogins.js";
 import { lazy } from "react";
 const RegisterUser = lazy(() => import("./RegisterUser.jsx"));
 const Login = lazy(() => import("./Login.jsx"));
-import { useNavigate } from "react-router-dom";
-import UserDetailsContext from "../contexts/UserDetails.js";
-import GOOGLE_LOGO from "../assets/auth-page-images/google-logo.png";
+import GoogleSignIn from "./GoogleSignIn.jsx";
 
 const AuthBottomSheet = () => {
   const [toggleRegisterOrLogin, setToggleRegisterOrLogin] = useState(true);
-  const navigate = useNavigate();
-  const { setUserInfo } = useContext(UserDetailsContext);
-  const handleGoogleSignIn = async () => {
-    let userDetails = await signInWithGoogle();
-    if (userDetails) {
-      setUserInfo(userDetails);
-      navigate("/feeds");
-    } else {
-      navigate("/edit-profile");
-    }
-  };
   return (
     <>
       <div className="w-[100vw] h-[440px] bg-white rounded-t-bottom-sheet">
@@ -49,23 +35,7 @@ const AuthBottomSheet = () => {
             <RegisterUser setToggleRegisterOrLogin={setToggleRegisterOrLogin} />
           )}
         </div>
-        <div className="flex justify-center mt-[10px]">
-          <button className="w-[275px] h-[55px] bg-[#313131] rounded-4xl ">
-            <div className="flex justify-center items-center">
-              <img
-                src={GOOGLE_LOGO}
-                alt="loading"
-                className="flex justify-center items-center w-[20px] h-[18px] m-1"
-              />
-              <p
-                className="text-white font-medium text-center m-1"
-                onClick={handleGoogleSignIn}
-              >
-                Continue with Google
-              </p>
-            </div>
-          </button>
-        </div>
+        <GoogleSignIn />
       </div>
     </>
   );

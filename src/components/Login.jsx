@@ -24,7 +24,6 @@ const Login = ({ setToggleRegisterOrLogin }) => {
       }
     } catch {
       toast.error("Invalid Credentials !!!");
-      console.log("inside the catch block");
     }
   };
   return (
