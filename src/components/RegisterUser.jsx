@@ -8,10 +8,11 @@ const RegisterUser = ({ setToggleRegisterOrLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleRegisterUser = () => {
+  const handleRegisterUser = async () => {
     if (!email || !password) return toast.error("enter all mandatory fields.");
     try {
-      registerUser(email, password, navigate);
+      await registerUser(email, password);
+      navigate("/edit-profile");
     } catch (error) {
       toast.error(error);
     }

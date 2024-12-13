@@ -9,7 +9,7 @@ const AuthBottomSheet = () => {
   const [toggleRegisterOrLogin, setToggleRegisterOrLogin] = useState(true);
   return (
     <>
-      <div className="w-[100vw] h-[440px] bg-white rounded-t-bottom-sheet">
+      <div className="w-[100vw] h-[400px] bg-white rounded-t-bottom-sheet">
         <div className="flex justify-center pt-6">
           <div className="flex justify-center items-center m-1 p-1">
             <img

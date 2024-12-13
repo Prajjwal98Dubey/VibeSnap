@@ -28,6 +28,7 @@ export const signInWithGoogle = async () => {
   }
 };
 
+/*
 export const registerUser = (email, password, navigate) => {
   createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
@@ -42,6 +43,19 @@ export const registerUser = (email, password, navigate) => {
     .catch((error) => {
       throw new Error(error);
     });
+};
+
+*/
+
+export const registerUser = async (email, password) => {
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  const user = userCredential.user;
+  if (localStorage.getItem("sm-auth")) localStorage.removeItem("sm-auth");
+  localStorage.setItem("sm-auth", JSON.stringify({ user_email: user.email }));
 };
 
 export const loginUser = async (email, password) => {
